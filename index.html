@@ -1,0 +1,639 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#000000">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black">
+<meta name="apple-mobile-web-app-title" content="CineVault">
+<title>CineVault</title>
+<link rel="manifest" href="./manifest.json">
+<link rel="apple-touch-icon" href="./icon-192.png">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg:#000; --sf:#0f0f0f; --sf2:#1a1a1a; --sf3:#252525;
+    --bd:#2c2c2c; --bdh:#3e3e3e; --tx:#f0f0f0; --txs:#b0b0b0; --txm:#585858;
+    --ac:#d4a843;
+    --ip-bd:#d48a1a; --ip-tx:#ffcc66; --ip-bg:#110b00; --ip-fl:#1c1200;
+    --tw-bd:#3a6fd4; --tw-tx:#88b4ff; --tw-bg:#04101f; --tw-fl:#091830;
+    --fn-bd:#25c264; --fn-tx:#52ffaa; --fn-bg:#00110a; --fn-fl:#001a0e;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+  html,body{height:100%}
+  body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--tx);min-height:100vh;overflow-x:hidden;padding-bottom:env(safe-area-inset-bottom)}
+
+  /* ── INSTALL BANNER ── */
+  #installBanner{display:none;align-items:center;justify-content:space-between;gap:10px;
+    background:#0f0f0f;border-bottom:1px solid var(--ac);padding:10px 16px;flex-wrap:wrap}
+  #installBanner.show{display:flex}
+  #installBanner p{font-size:.8rem;color:var(--txs);flex:1}
+  #installBanner p strong{color:var(--ac)}
+  .ibtn-install{background:var(--ac);border:none;border-radius:8px;color:#000;font-weight:700;font-size:.78rem;font-family:'DM Sans',sans-serif;padding:6px 14px;cursor:pointer;white-space:nowrap}
+  .ibtn-dismiss{background:none;border:none;color:var(--txm);font-size:1.1rem;cursor:pointer;padding:2px 6px}
+
+  /* ── HEADER ── */
+  header{position:sticky;top:0;z-index:100;background:rgba(0,0,0,.97);backdrop-filter:blur(20px);
+    border-bottom:1px solid var(--bd);padding:0 18px;display:flex;align-items:center;justify-content:space-between;height:58px}
+  .logo{font-family:'Playfair Display',serif;font-size:1.35rem;font-weight:900;color:var(--ac);line-height:1}
+  .logo small{color:var(--txm);font-weight:300;font-size:.68rem;display:block;letter-spacing:3px;text-transform:uppercase}
+  .hbtns{display:flex;gap:6px}
+  .hbtn{background:var(--sf2);border:1px solid var(--bd);color:var(--txs);border-radius:9px;
+    padding:7px 12px;font-size:.76rem;font-family:'DM Sans',sans-serif;cursor:pointer;transition:all .18s;white-space:nowrap}
+  .hbtn:hover,.hbtn:active{background:var(--sf3);color:var(--tx);border-color:var(--bdh)}
+
+  /* ── WRAP ── */
+  .wrap{max-width:1200px;margin:0 auto;padding:20px 16px}
+
+  /* ── SEARCH PANEL ── */
+  .sp{background:var(--sf);border:1px solid var(--bd);border-radius:16px;padding:20px;margin-bottom:22px;position:relative}
+  .sp h2{font-family:'Playfair Display',serif;font-size:.98rem;color:var(--ac);margin-bottom:13px}
+  .srow{display:flex;gap:8px;flex-wrap:wrap}
+  .siw{flex:1;min-width:180px;position:relative}
+  .siw input{width:100%;padding:11px 12px 11px 38px;background:var(--sf2);border:1.5px solid var(--bd);
+    border-radius:10px;color:var(--tx);font-size:.88rem;font-family:'DM Sans',sans-serif;outline:none;transition:border-color .2s}
+  .siw input::placeholder{color:var(--txm)}
+  .siw input:focus{border-color:var(--ac)}
+  .si{position:absolute;left:11px;top:50%;transform:translateY(-50%);font-size:.88rem;color:var(--txm);pointer-events:none}
+  select.st{padding:11px 11px;background:var(--sf2);border:1.5px solid var(--bd);border-radius:10px;
+    color:var(--tx);font-family:'DM Sans',sans-serif;font-size:.88rem;outline:none;cursor:pointer;min-width:140px}
+  select.st:focus{border-color:var(--ac)}
+  .sbtn{padding:11px 20px;background:var(--ac);border:none;border-radius:10px;color:#000;font-weight:700;
+    font-size:.88rem;font-family:'DM Sans',sans-serif;cursor:pointer;transition:all .18s;white-space:nowrap}
+  .sbtn:active{transform:scale(.97)}
+
+  /* ── DROPDOWN ── */
+  .dd{position:absolute;left:20px;right:20px;top:calc(100% - 4px);background:#0a0a0a;
+    border:1px solid var(--bdh);border-radius:13px;overflow:hidden;
+    box-shadow:0 24px 70px rgba(0,0,0,.95);z-index:300;max-height:400px;overflow-y:auto;display:none}
+  .dd.open{display:block}
+  .di{display:flex;align-items:center;gap:12px;padding:11px 14px;cursor:pointer;
+    border-bottom:1px solid var(--bd);transition:background .12s}
+  .di:last-child{border-bottom:none}
+  .di:hover,.di:active{background:var(--sf2)}
+  .dthumb{width:38px;height:55px;border-radius:6px;object-fit:cover;background:var(--bd);flex-shrink:0}
+  .dph{width:38px;height:55px;border-radius:6px;background:var(--sf3);flex-shrink:0;
+    display:flex;align-items:center;justify-content:center;font-size:1.1rem}
+  .dinfo{flex:1;min-width:0}
+  .dtitle{font-weight:600;font-size:.85rem;margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .dmeta{font-size:.71rem;color:var(--txm)}
+  .dbadge{font-size:.62rem;font-weight:700;text-transform:uppercase;padding:2px 7px;border-radius:20px;
+    background:var(--sf3);border:1px solid var(--bdh);color:var(--txs);flex-shrink:0}
+  .dnone{padding:22px;text-align:center;color:var(--txm);font-size:.84rem}
+
+  /* ── STATS ── */
+  .stats{display:flex;gap:9px;margin-bottom:20px;flex-wrap:wrap}
+  .stat{flex:1;min-width:76px;background:var(--sf);border-radius:12px;padding:12px 12px;border:1px solid var(--bd);text-align:center}
+  .sn{font-family:'Playfair Display',serif;font-size:1.75rem;font-weight:700;line-height:1}
+  .sl{font-size:.61rem;color:var(--txm);text-transform:uppercase;letter-spacing:1.2px;margin-top:4px}
+  .s-ip .sn{color:var(--ip-tx)} .s-tw .sn{color:var(--tw-tx)} .s-fn .sn{color:var(--fn-tx)}
+
+  /* ── TABS ── */
+  .tabs{display:flex;gap:6px;margin-bottom:18px;flex-wrap:wrap}
+  .tab{padding:8px 15px;border-radius:30px;border:1.5px solid var(--bd);background:transparent;
+    color:var(--txm);font-family:'DM Sans',sans-serif;font-size:.8rem;font-weight:500;cursor:pointer;
+    transition:all .18s;display:flex;align-items:center;gap:6px;white-space:nowrap}
+  .tab .cnt{background:var(--sf2);border-radius:20px;padding:1px 7px;font-size:.67rem;font-weight:700}
+  .tab[data-tab=all].on     {border-color:var(--ac);color:var(--ac);background:rgba(212,168,67,.07)}
+  .tab[data-tab=in-progress].on{border-color:var(--ip-bd);background:var(--ip-fl);color:var(--ip-tx)}
+  .tab[data-tab=to-watch].on   {border-color:var(--tw-bd);background:var(--tw-fl);color:var(--tw-tx)}
+  .tab[data-tab=finished].on   {border-color:var(--fn-bd);background:var(--fn-fl);color:var(--fn-tx)}
+
+  /* ── FILTER BAR ── */
+  .fb{display:flex;gap:7px;margin-bottom:20px;flex-wrap:wrap;align-items:center}
+  .fb input{flex:1;min-width:140px;padding:9px 12px;background:var(--sf);border:1px solid var(--bd);
+    border-radius:9px;color:var(--tx);font-family:'DM Sans',sans-serif;font-size:.82rem;outline:none;transition:border-color .18s}
+  .fb input::placeholder{color:var(--txm)}
+  .fb input:focus{border-color:var(--ac)}
+  .fsel{padding:9px 10px;background:var(--sf);border:1px solid var(--bd);border-radius:9px;
+    color:var(--tx);font-family:'DM Sans',sans-serif;font-size:.82rem;outline:none;cursor:pointer}
+
+  /* ── SECTIONS ── */
+  .sec{margin-bottom:28px}
+  .sec-hd{display:flex;align-items:center;gap:9px;margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--bd)}
+  .sec-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+  .sec-hd h3{font-family:'Playfair Display',serif;font-size:.93rem;font-weight:700}
+  .sec-cnt{margin-left:auto;font-size:.69rem;color:var(--txm);background:var(--sf2);padding:2px 9px;border-radius:20px;border:1px solid var(--bd)}
+  .h-ip .sec-dot{background:var(--ip-bd);box-shadow:0 0 8px var(--ip-bd)} .h-ip h3{color:var(--ip-tx)}
+  .h-tw .sec-dot{background:var(--tw-bd)} .h-tw h3{color:var(--tw-tx)}
+  .h-fn .sec-dot{background:var(--fn-bd);box-shadow:0 0 7px rgba(37,194,100,.55)} .h-fn h3{color:var(--fn-tx)}
+
+  /* ── GRID ── */
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(148px,1fr));gap:13px}
+
+  /* ── CARD ── */
+  .card{border-radius:13px;overflow:hidden;position:relative;border:2px solid transparent;
+    background:var(--sf);transition:transform .22s,box-shadow .22s;cursor:default}
+  @media(hover:hover){.card:hover{transform:translateY(-4px);box-shadow:0 18px 48px rgba(0,0,0,.7)}}
+  .card.s-to-watch   {border-color:var(--tw-bd);background:var(--tw-bg)}
+  .card.s-in-progress{border-color:var(--ip-bd);background:var(--ip-bg)}
+  .card.s-finished   {border-color:var(--fn-bd);background:var(--fn-bg);box-shadow:0 0 18px rgba(37,194,100,.05)}
+  .cp{position:relative}
+  .cp img{width:100%;aspect-ratio:2/3;object-fit:cover;display:block}
+  .cph{width:100%;aspect-ratio:2/3;background:var(--sf3);display:flex;align-items:center;justify-content:center;font-size:2.4rem}
+  /* status badge */
+  .cbadge{position:absolute;top:6px;left:6px;border-radius:20px;padding:3px 8px;font-size:.57rem;
+    font-weight:700;text-transform:uppercase;letter-spacing:.4px;backdrop-filter:blur(6px)}
+  .s-to-watch    .cbadge{background:rgba(4,16,31,.9);color:var(--tw-tx);border:1px solid var(--tw-bd)}
+  .s-in-progress .cbadge{background:rgba(17,11,0,.9);color:var(--ip-tx);border:1px solid var(--ip-bd)}
+  .s-finished    .cbadge{background:rgba(0,17,10,.9);color:var(--fn-tx);border:1px solid var(--fn-bd)}
+  /* checkmark */
+  .cchk{position:absolute;top:6px;right:6px;width:25px;height:25px;border-radius:50%;
+    background:var(--fn-bd);display:flex;align-items:center;justify-content:center;
+    font-size:.78rem;font-weight:900;color:#000;box-shadow:0 2px 12px rgba(37,194,100,.6)}
+  /* shimmer */
+  .cprog{position:absolute;bottom:0;left:0;right:0;height:3px;background:rgba(212,138,26,.15)}
+  .cprog::after{content:'';position:absolute;left:0;top:0;bottom:0;width:50%;
+    background:var(--ip-bd);border-radius:0 2px 2px 0;animation:shim 2.2s ease-in-out infinite}
+  @keyframes shim{0%,100%{opacity:1}50%{opacity:.28}}
+  /* type tag */
+  .ctag{position:absolute;top:6px;right:6px;backdrop-filter:blur(4px);border-radius:20px;
+    font-size:.55rem;font-weight:700;padding:2px 6px;text-transform:uppercase;letter-spacing:.3px}
+  .t-anime  .ctag{background:rgba(14,6,24,.9);color:#d8a8ff;border:1px solid #9b59b6}
+  .t-movie  .ctag{background:rgba(20,10,0,.9);color:#ffbb55;border:1px solid #a07010}
+  .t-tv     .ctag{background:rgba(5,10,25,.9);color:#88b4ff;border:1px solid #3a6fd4}
+  .cbody{padding:9px 10px 5px}
+  .ctitle{font-weight:600;font-size:.8rem;line-height:1.3;margin-bottom:4px}
+  .cmeta{font-size:.67rem;color:var(--txm);display:flex;gap:4px;flex-wrap:wrap;align-items:center}
+  .ctype{font-size:.56rem;font-weight:700;text-transform:uppercase;padding:2px 5px;
+    border-radius:4px;background:var(--sf3);color:var(--txm);border:1px solid var(--bd)}
+  .cacts{display:flex;gap:5px;padding:0 9px 9px}
+  .cacts select{flex:1;padding:6px 6px;border-radius:7px;border:1px solid var(--bd);
+    background:var(--sf2);color:var(--tx);font-family:'DM Sans',sans-serif;font-size:.69rem;outline:none;cursor:pointer;min-width:0}
+  .cdel{padding:6px 8px;background:rgba(200,40,40,.1);border:1px solid rgba(200,40,40,.2);
+    border-radius:7px;color:#ff5a5a;cursor:pointer;font-size:.73rem;transition:all .18s;flex-shrink:0}
+  .cdel:active{background:rgba(200,40,40,.3)}
+
+  /* ── EMPTY ── */
+  .empty{text-align:center;padding:56px 20px;grid-column:1/-1}
+  .empty .ei{font-size:3rem;margin-bottom:11px;opacity:.28}
+  .empty h3{font-family:'Playfair Display',serif;font-size:1.15rem;color:var(--txm);margin-bottom:5px}
+  .empty p{color:var(--txm);font-size:.81rem}
+
+  /* ── TOAST ── */
+  .toast{position:fixed;bottom:calc(20px + env(safe-area-inset-bottom));right:18px;
+    background:#0f0f0f;border:1px solid var(--bdh);border-radius:11px;padding:11px 16px;
+    font-size:.83rem;color:var(--tx);box-shadow:0 10px 40px rgba(0,0,0,.85);
+    transform:translateY(80px);opacity:0;transition:all .3s cubic-bezier(.34,1.56,.64,1);
+    z-index:9999;max-width:260px}
+  .toast.show{transform:translateY(0);opacity:1}
+  .toast.ok{border-color:var(--fn-bd)} .toast.err{border-color:#ff4444}
+
+  /* ── MODAL ── */
+  .ov{position:fixed;inset:0;background:rgba(0,0,0,.9);backdrop-filter:blur(12px);z-index:500;
+    display:none;align-items:center;justify-content:center;padding:18px}
+  .ov.open{display:flex}
+  .modal{background:#0f0f0f;border:1px solid var(--bdh);border-radius:17px;padding:22px;max-width:380px;width:100%}
+  .modal h3{font-family:'Playfair Display',serif;font-size:1rem;margin-bottom:10px}
+  .modal p{font-size:.79rem;color:var(--txm);margin-bottom:10px}
+  .modal textarea{width:100%;padding:10px;background:var(--sf2);border:1px solid var(--bd);
+    border-radius:9px;color:var(--tx);font-family:'DM Sans',sans-serif;font-size:.8rem;outline:none;resize:vertical;min-height:90px}
+  .mbtns{display:flex;gap:7px;margin-top:12px;justify-content:flex-end}
+  .mcancel{padding:8px 16px;background:transparent;border:1px solid var(--bd);border-radius:8px;color:var(--txm);cursor:pointer;font-family:'DM Sans',sans-serif}
+  .mok{padding:8px 16px;background:var(--ac);border:none;border-radius:8px;color:#000;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif}
+
+  ::-webkit-scrollbar{width:4px} ::-webkit-scrollbar-track{background:transparent} ::-webkit-scrollbar-thumb{background:var(--bd);border-radius:2px}
+
+  @media(max-width:480px){
+    .wrap{padding:14px 11px}
+    .grid{grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:11px}
+    .stats{gap:7px} .stat{padding:10px 8px} .sn{font-size:1.55rem}
+    .hbtns{gap:5px} .hbtn{padding:6px 9px;font-size:.72rem}
+    .tabs{gap:5px} .tab{padding:7px 12px;font-size:.76rem}
+    .logo{font-size:1.2rem}
+  }
+</style>
+</head>
+<body>
+
+<!-- Install prompt banner -->
+<div id="installBanner">
+  <p>📱 <strong>Install CineVault</strong> as an app — works offline, saves to home screen</p>
+  <button class="ibtn-install" id="installBtn">Install</button>
+  <button class="ibtn-dismiss" onclick="dismissInstall()">✕</button>
+</div>
+
+<header>
+  <div class="logo">CineVault <small>Watchlist</small></div>
+  <div class="hbtns">
+    <button class="hbtn" onclick="exportData()">⬆ Export</button>
+    <button class="hbtn" onclick="openImport()">⬇ Import</button>
+  </div>
+</header>
+
+<div class="wrap">
+  <!-- Search -->
+  <div class="sp">
+    <h2>＋ Add to Watchlist</h2>
+    <div class="srow">
+      <div class="siw">
+        <span class="si">🔍</span>
+        <input type="text" id="sInput" placeholder="Search movies, series, anime…" autocomplete="off">
+      </div>
+      <select class="st" id="sType">
+        <option value="multi">All Types</option>
+        <option value="movie">Movies</option>
+        <option value="tv">Web Series / TV</option>
+        <option value="anime">Anime</option>
+      </select>
+      <button class="sbtn" onclick="doSearch()">Search</button>
+    </div>
+    <div class="dd" id="dd"></div>
+  </div>
+
+  <!-- Stats -->
+  <div class="stats">
+    <div class="stat s-ip"><div class="sn" id="stIP">0</div><div class="sl">In Progress</div></div>
+    <div class="stat s-tw"><div class="sn" id="stTW">0</div><div class="sl">To Watch</div></div>
+    <div class="stat s-fn"><div class="sn" id="stFN">0</div><div class="sl">Finished</div></div>
+  </div>
+
+  <!-- Tabs: status only, no anime tab -->
+  <div class="tabs">
+    <button class="tab on" data-tab="all"         onclick="setTab('all')">All <span class="cnt" id="cAll">0</span></button>
+    <button class="tab"    data-tab="in-progress" onclick="setTab('in-progress')">🟡 In Progress <span class="cnt" id="cIP">0</span></button>
+    <button class="tab"    data-tab="to-watch"    onclick="setTab('to-watch')">🔵 To Watch <span class="cnt" id="cTW">0</span></button>
+    <button class="tab"    data-tab="finished"    onclick="setTab('finished')">🟢 Finished <span class="cnt" id="cFN">0</span></button>
+  </div>
+
+  <!-- Filters — anime is a media type filter, not a tab -->
+  <div class="fb">
+    <input type="text" id="fText" placeholder="Filter your list…" oninput="render()">
+    <select class="fsel" id="fMedia" onchange="render()">
+      <option value="all">All Media</option>
+      <option value="movie">Movies</option>
+      <option value="tv">Web Series</option>
+      <option value="anime">Anime</option>
+    </select>
+    <select class="fsel" id="fSort" onchange="render()">
+      <option value="status">By Status</option>
+      <option value="added">Recently Added</option>
+      <option value="title">Title A–Z</option>
+      <option value="year">Year</option>
+      <option value="rating">Rating</option>
+    </select>
+  </div>
+
+  <div id="content"></div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<div class="ov" id="importOv">
+  <div class="modal">
+    <h3>Import Watchlist</h3>
+    <p>Paste your exported JSON. Duplicates are skipped automatically.</p>
+    <textarea id="importTxt" placeholder="Paste JSON here…"></textarea>
+    <div class="mbtns">
+      <button class="mcancel" onclick="closeImport()">Cancel</button>
+      <button class="mok"     onclick="doImport()">Import</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── IndexedDB ─────────────────────────────────────────────
+const DB_NAME = 'cinevault', DB_VER = 1, STORE = 'items';
+let db, list = [], curTab = 'all', stTimer = null;
+
+function openDB() {
+  return new Promise((res, rej) => {
+    const req = indexedDB.open(DB_NAME, DB_VER);
+    req.onupgradeneeded = e => {
+      const d = e.target.result;
+      if (!d.objectStoreNames.contains(STORE)) {
+        const s = d.createObjectStore(STORE, { keyPath: ['id','type'] });
+        s.createIndex('status', 'status', { unique: false });
+      }
+    };
+    req.onsuccess = e => { db = e.target.result; res(db); };
+    req.onerror   = e => rej(e.target.error);
+  });
+}
+
+function dbGetAll() {
+  return new Promise((res, rej) => {
+    const tx = db.transaction(STORE, 'readonly');
+    const req = tx.objectStore(STORE).getAll();
+    req.onsuccess = () => res(req.result);
+    req.onerror   = e => rej(e.target.error);
+  });
+}
+
+function dbPut(item) {
+  return new Promise((res, rej) => {
+    const tx = db.transaction(STORE, 'readwrite');
+    const req = tx.objectStore(STORE).put(item);
+    req.onsuccess = () => res();
+    req.onerror   = e => rej(e.target.error);
+  });
+}
+
+function dbDelete(id, type) {
+  return new Promise((res, rej) => {
+    const tx = db.transaction(STORE, 'readwrite');
+    const req = tx.objectStore(STORE).delete([id, type]);
+    req.onsuccess = () => res();
+    req.onerror   = e => rej(e.target.error);
+  });
+}
+
+async function loadAll() {
+  list = await dbGetAll();
+  list.sort((a,b) => b.added_at - a.added_at);
+  updateStats(); render();
+}
+
+// ── BOOT ──────────────────────────────────────────────────
+const TMDB_KEY = '8265bd1679663a7ea12ac168da84d2e8';
+const IMG      = 'https://image.tmdb.org/t/p/w300';
+
+(async () => {
+  await openDB();
+  await loadAll();
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('./sw.js').catch(() => {});
+  }
+})();
+
+// ── INSTALL PROMPT ────────────────────────────────────────
+let deferredPrompt = null;
+window.addEventListener('beforeinstallprompt', e => {
+  e.preventDefault(); deferredPrompt = e;
+  if (!localStorage.getItem('cv_install_dismissed')) {
+    document.getElementById('installBanner').classList.add('show');
+  }
+});
+document.getElementById('installBtn').addEventListener('click', async () => {
+  if (!deferredPrompt) return;
+  deferredPrompt.prompt();
+  const { outcome } = await deferredPrompt.userChoice;
+  deferredPrompt = null;
+  document.getElementById('installBanner').classList.remove('show');
+});
+function dismissInstall() {
+  localStorage.setItem('cv_install_dismissed', '1');
+  document.getElementById('installBanner').classList.remove('show');
+}
+
+// ── SEARCH ────────────────────────────────────────────────
+const sInput = document.getElementById('sInput');
+sInput.addEventListener('keydown', e => { if(e.key==='Enter') doSearch(); if(e.key==='Escape') closeDd(); });
+sInput.addEventListener('input', () => {
+  clearTimeout(stTimer);
+  if (sInput.value.trim().length >= 2) stTimer = setTimeout(doSearch, 560);
+  else closeDd();
+});
+document.addEventListener('click', e => { if(!e.target.closest('.sp')) closeDd(); });
+
+async function doSearch() {
+  const q = sInput.value.trim(); if(!q) return;
+  const type = document.getElementById('sType').value;
+  const dd = document.getElementById('dd');
+  dd.innerHTML = '<div class="dnone">Searching…</div>';
+  dd.classList.add('open');
+  try {
+    let results = [];
+    if (type === 'anime') {
+      const r = await fetch(`https://api.themoviedb.org/3/search/tv?api_key=${TMDB_KEY}&query=${encodeURIComponent(q)}&include_adult=false`);
+      const d = await r.json();
+      results = (d.results||[]).map(x => ({...x, _anime: true}));
+    } else {
+      const ep = type === 'multi' ? 'search/multi' : `search/${type}`;
+      const r  = await fetch(`https://api.themoviedb.org/3/${ep}?api_key=${TMDB_KEY}&query=${encodeURIComponent(q)}&include_adult=false`);
+      const d  = await r.json();
+      results  = d.results||[];
+    }
+    renderDd(results);
+  } catch {
+    dd.innerHTML = `<div class="dnone" style="position:relative;padding:18px 14px 16px">
+      <button onclick="closeDd()" style="position:absolute;top:6px;right:8px;background:none;border:none;color:var(--txm);font-size:1.05rem;cursor:pointer">✕</button>
+      📡 Can't reach TMDB — check internet.<br>
+      <div style="display:flex;gap:7px;justify-content:center;margin-top:10px;flex-wrap:wrap">
+        <button onclick="doSearch()" style="padding:6px 13px;background:var(--ac);border:none;border-radius:8px;color:#000;font-weight:700;cursor:pointer;font-family:inherit;font-size:.79rem">🔄 Retry</button>
+        <button onclick="addManual()" style="padding:6px 13px;background:var(--sf2);border:1px solid var(--bd);border-radius:8px;color:var(--tx);cursor:pointer;font-family:inherit;font-size:.79rem">✏️ Add Manually</button>
+      </div></div>`;
+  }
+}
+
+function renderDd(results) {
+  const dd = document.getElementById('dd');
+  const items = results.filter(r => r.media_type !== 'person').slice(0, 12);
+  if (!items.length) { dd.innerHTML = '<div class="dnone">No results found.</div>'; return; }
+  dd.innerHTML = items.map(item => {
+    const anime = !!item._anime;
+    const isTV  = anime || item.media_type === 'tv' || (!item.media_type && item.first_air_date);
+    const title = item.title || item.name || 'Unknown';
+    const year  = (item.release_date || item.first_air_date || '').slice(0,4);
+    const rat   = item.vote_average ? `⭐ ${item.vote_average.toFixed(1)}` : '';
+    const icon  = anime ? '🎌' : isTV ? '📺' : '🎬';
+    const mtype = anime ? 'anime' : isTV ? 'tv' : 'movie';
+    const lbl   = anime ? 'Anime' : isTV ? 'Series' : 'Movie';
+    const thumb = item.poster_path
+      ? `<img class="dthumb" src="${IMG}${item.poster_path}" alt="">`
+      : `<div class="dph">${icon}</div>`;
+    const pay = JSON.stringify({id:String(item.id),title,year,rating:item.vote_average||0,thumb:item.poster_path||'',type:mtype,overview:item.overview||''}).replace(/"/g,'&quot;');
+    return `<div class="di" onclick='addItem(${JSON.stringify({id:String(item.id),title,year,rating:item.vote_average||0,thumb:item.poster_path||"",type:mtype,overview:item.overview||""})})'>
+      ${thumb}<div class="dinfo"><div class="dtitle">${title}</div><div class="dmeta">${year}${rat?' · '+rat:''}</div></div>
+      <span class="dbadge">${lbl}</span></div>`;
+  }).join('');
+}
+
+function closeDd() { document.getElementById('dd').classList.remove('open'); }
+
+// ── ADD ───────────────────────────────────────────────────
+async function addItem(data) {
+  if (typeof data === 'string') data = JSON.parse(data);
+  const exists = list.find(w => w.id === data.id && w.type === data.type);
+  if (exists) { toast('Already in your list!','err'); closeDd(); return; }
+  const item = {...data, status:'to-watch', added_at: Date.now()};
+  await dbPut(item);
+  list.unshift(item);
+  updateStats(); render();
+  closeDd(); sInput.value = '';
+  toast(`✅ Added "${data.title}"`,'ok');
+}
+
+function addManual() {
+  const title = prompt('Enter title:'); if(!title?.trim()) return;
+  const year  = prompt('Year (optional):') || '';
+  const tc    = prompt('Type:\n1 = Movie\n2 = Web Series\n3 = Anime\n\nEnter 1, 2 or 3:','1');
+  const type  = {'1':'movie','2':'tv','3':'anime'}[tc?.trim()] || 'movie';
+  addItem({id:'manual_'+Date.now(), title:title.trim(), year, rating:0, thumb:'', type, overview:''});
+  closeDd();
+}
+
+// ── STATUS / DELETE ───────────────────────────────────────
+async function changeStatus(id, type, val) {
+  const item = list.find(w => w.id === id && w.type === type);
+  if (!item) return;
+  item.status = val;
+  await dbPut(item);
+  updateStats(); render();
+}
+
+async function delItem(id, type) {
+  const item = list.find(w => w.id === id && w.type === type);
+  if (!item || !confirm(`Remove "${item.title}"?`)) return;
+  await dbDelete(id, type);
+  list = list.filter(w => !(w.id === id && w.type === type));
+  updateStats(); render();
+  toast('Removed from list');
+}
+
+// ── CARD ──────────────────────────────────────────────────
+function cardHTML(item) {
+  const slbl = {'to-watch':'To Watch','in-progress':'In Progress','finished':'Finished'}[item.status]||'';
+  const icon = item.type==='anime'?'🎌':item.type==='tv'?'📺':'🎬';
+  const tlbl = item.type==='anime'?'Anime':item.type==='tv'?'Series':'Movie';
+  const img  = item.thumb ? `<img src="${IMG}${item.thumb}" alt="" loading="lazy" onerror="this.style.display='none';this.nextSibling.style.display='flex'">` : '';
+  const ph   = `<div class="cph" style="${item.thumb?'display:none':''}">${icon}</div>`;
+  const chk  = item.status==='finished' ? '<div class="cchk">✓</div>' : '';
+  const prog = item.status==='in-progress' ? '<div class="cprog"></div>' : '';
+  const tag  = item.status!=='finished' ? `<span class="ctag">${tlbl}</span>` : '';
+  // escape for inline event
+  const eid  = item.id.replace(/'/g,"\\'");
+  const etyp = item.type.replace(/'/g,"\\'");
+  return `<div class="card s-${item.status} t-${item.type}">
+    <div class="cp">${img}${ph}<span class="cbadge">${slbl}</span>${chk}${prog}${tag}</div>
+    <div class="cbody">
+      <div class="ctitle">${item.title}</div>
+      <div class="cmeta">${item.year||''}${item.rating?' · ⭐'+Number(item.rating).toFixed(1):''}
+        <span class="ctype">${tlbl}</span></div>
+    </div>
+    <div class="cacts">
+      <select onchange="changeStatus('${eid}','${etyp}',this.value)">
+        <option value="to-watch"    ${item.status==='to-watch'   ?'selected':''}>🔵 To Watch</option>
+        <option value="in-progress" ${item.status==='in-progress'?'selected':''}>🟡 In Progress</option>
+        <option value="finished"    ${item.status==='finished'   ?'selected':''}>🟢 Finished</option>
+      </select>
+      <button class="cdel" onclick="delItem('${eid}','${etyp}')">✕</button>
+    </div>
+  </div>`;
+}
+
+// ── RENDER ────────────────────────────────────────────────
+function render() {
+  const area  = document.getElementById('content');
+  const ftxt  = document.getElementById('fText').value.toLowerCase();
+  const fmdia = document.getElementById('fMedia').value;
+  const fsort = document.getElementById('fSort').value;
+
+  let items = list.filter(w => {
+    if (curTab !== 'all' && w.status !== curTab) return false;
+    if (fmdia  !== 'all' && w.type   !== fmdia)  return false;
+    if (ftxt && !w.title.toLowerCase().includes(ftxt)) return false;
+    return true;
+  });
+
+  if (!items.length) {
+    const icon = curTab==='finished'?'🎉':curTab==='in-progress'?'▶️':'🎬';
+    area.innerHTML = `<div class="empty"><div class="ei">${icon}</div>
+      <h3>${ftxt?'No results':'Nothing here yet'}</h3>
+      <p>${ftxt?'Try a different filter':'Search above to add movies & shows'}</p></div>`;
+    return;
+  }
+
+  if (fsort==='title')  items.sort((a,b)=>a.title.localeCompare(b.title));
+  else if (fsort==='year')   items.sort((a,b)=>(b.year||0)-(a.year||0));
+  else if (fsort==='rating') items.sort((a,b)=>b.rating-a.rating);
+  else                       items.sort((a,b)=>b.added_at-a.added_at); // added + status both use this base
+
+  // Grouped by status (In Progress → To Watch → Finished) when "By Status" on All tab
+  if (fsort==='status' && curTab==='all') {
+    const order = ['in-progress','to-watch','finished'];
+    const meta  = {
+      'in-progress':{lbl:'▶ In Progress',cls:'h-ip'},
+      'to-watch':   {lbl:'◉ To Watch',   cls:'h-tw'},
+      'finished':   {lbl:'✓ Finished',   cls:'h-fn'}
+    };
+    let html = '';
+    order.forEach(s => {
+      const grp = items.filter(i=>i.status===s);
+      if (!grp.length) return;
+      const {lbl,cls} = meta[s];
+      html += `<div class="sec">
+        <div class="sec-hd ${cls}"><span class="sec-dot"></span><h3>${lbl}</h3>
+        <span class="sec-cnt">${grp.length} item${grp.length!==1?'s':''}</span></div>
+        <div class="grid">${grp.map(cardHTML).join('')}</div></div>`;
+    });
+    area.innerHTML = html;
+  } else {
+    area.innerHTML = `<div class="grid">${items.map(cardHTML).join('')}</div>`;
+  }
+}
+
+// ── TABS ──────────────────────────────────────────────────
+function setTab(tab) {
+  curTab = tab;
+  document.querySelectorAll('.tab').forEach(t => {
+    t.classList.toggle('on', t.dataset.tab === tab);
+  });
+  render();
+}
+
+// ── STATS ─────────────────────────────────────────────────
+function updateStats() {
+  const ip  = list.filter(w=>w.status==='in-progress').length;
+  const tw  = list.filter(w=>w.status==='to-watch').length;
+  const fn  = list.filter(w=>w.status==='finished').length;
+  document.getElementById('stIP').textContent = ip;
+  document.getElementById('stTW').textContent = tw;
+  document.getElementById('stFN').textContent = fn;
+  document.getElementById('cAll').textContent = list.length;
+  document.getElementById('cIP').textContent  = ip;
+  document.getElementById('cTW').textContent  = tw;
+  document.getElementById('cFN').textContent  = fn;
+}
+
+// ── EXPORT ────────────────────────────────────────────────
+// Export creates a single snapshot JSON. It does NOT auto-create new files —
+// it always downloads ONE file named cinevault-backup.json that you can
+// re-import later. Think of it as "save a copy", not "sync".
+function exportData() {
+  const json = JSON.stringify(list, null, 2);
+  const blob = new Blob([json], {type:'application/json'});
+  const a    = document.createElement('a');
+  a.href     = URL.createObjectURL(blob);
+  a.download = 'cinevault-backup.json';
+  a.click();
+  toast('📦 Backup saved!','ok');
+}
+
+// ── IMPORT ────────────────────────────────────────────────
+function openImport()  { document.getElementById('importOv').classList.add('open'); }
+function closeImport() { document.getElementById('importOv').classList.remove('open'); }
+
+async function doImport() {
+  try {
+    const data = JSON.parse(document.getElementById('importTxt').value.trim());
+    if (!Array.isArray(data)) throw new Error();
+    let added = 0;
+    for (const item of data) {
+      if (!list.find(w => w.id===item.id && w.type===item.type)) {
+        await dbPut(item);
+        list.unshift(item);
+        added++;
+      }
+    }
+    list.sort((a,b)=>b.added_at-a.added_at);
+    updateStats(); render();
+    closeImport();
+    document.getElementById('importTxt').value = '';
+    toast(`✅ Imported ${added} item(s)`,'ok');
+  } catch { toast('Invalid JSON file','err'); }
+}
+
+// ── TOAST ─────────────────────────────────────────────────
+let toastT;
+function toast(msg, type='') {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.className = 'toast '+type;
+  requestAnimationFrame(() => t.classList.add('show'));
+  clearTimeout(toastT);
+  toastT = setTimeout(() => t.classList.remove('show'), 2800);
+}
+</script>
+</body>
+</html>
