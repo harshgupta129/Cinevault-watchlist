@@ -266,6 +266,76 @@ select.st:focus{border-color:var(--ac)}
 .paste-status.miss{background:rgba(200,40,40,.15);color:#ff6060;border:1px solid rgba(200,40,40,.3)}
 .paste-import-btn{width:100%;padding:11px;background:var(--ac);border:none;border-radius:10px;color:#000;font-weight:700;font-size:.88rem;font-family:'DM Sans',sans-serif;cursor:pointer}
 .paste-import-btn:active{transform:scale(.97)}
+/* ══ ONBOARDING ══════════════════════════════════════════ */
+@keyframes cvFadeUp{from{opacity:0;transform:translateY(32px)}to{opacity:1;transform:translateY(0)}}
+@keyframes cvFadeIn{from{opacity:0}to{opacity:1}}
+@keyframes cvSlideOutLeft{from{opacity:1;transform:translateX(0)}to{opacity:0;transform:translateX(-48px)}}
+@keyframes cvSlideInRight{from{opacity:0;transform:translateX(48px)}to{opacity:1;transform:translateX(0)}}
+@keyframes cvFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+@keyframes cvPulse{0%,100%{box-shadow:0 0 0 0 rgba(212,168,67,.4)}70%{box-shadow:0 0 0 10px rgba(212,168,67,0)}}
+@keyframes cvShimmer{0%{background-position:-200% 0}100%{background-position:200% 0}}
+
+#onboarding{
+  position:fixed;inset:0;z-index:9000;
+  background:rgba(0,0,0,.96);backdrop-filter:blur(16px);
+  display:flex;align-items:center;justify-content:center;padding:20px;
+  animation:cvFadeIn .4s ease;
+}
+#onboarding.hidden{display:none}
+.ob-card{
+  background:#0f0f0f;border:1px solid var(--bdh);
+  border-radius:24px;max-width:400px;width:100%;
+  padding:32px 28px;position:relative;
+  animation:cvFadeUp .45s cubic-bezier(.22,1,.36,1);
+}
+.ob-slide{animation:cvSlideInRight .35s cubic-bezier(.22,1,.36,1)}
+.ob-slide-out{animation:cvSlideOutLeft .25s ease forwards}
+
+.ob-icon{font-size:3.2rem;text-align:center;margin-bottom:18px;animation:cvFloat 3s ease-in-out infinite}
+.ob-title{font-family:'Playfair Display',serif;font-size:1.5rem;font-weight:900;text-align:center;margin-bottom:8px;color:var(--tx)}
+.ob-sub{font-size:.86rem;color:var(--txm);text-align:center;margin-bottom:24px;line-height:1.6}
+
+/* Feature rows */
+.ob-features{display:flex;flex-direction:column;gap:12px;margin-bottom:24px}
+.ob-feat{display:flex;align-items:flex-start;gap:13px;padding:12px 14px;background:var(--sf2);border:1px solid var(--bd);border-radius:13px}
+.ob-feat-icon{font-size:1.4rem;flex-shrink:0;margin-top:1px}
+.ob-feat-body{}
+.ob-feat-title{font-weight:700;font-size:.88rem;margin-bottom:3px}
+.ob-feat-desc{font-size:.76rem;color:var(--txm);line-height:1.5}
+
+/* Paste format guide box */
+.ob-format{background:var(--sf2);border:1px solid var(--bd);border-radius:12px;padding:14px 16px;margin-bottom:20px}
+.ob-format-title{font-size:.75rem;font-weight:700;color:var(--ac);text-transform:uppercase;letter-spacing:.8px;margin-bottom:10px}
+.ob-format-line{display:flex;align-items:center;gap:8px;margin-bottom:6px;font-size:.8rem}
+.ob-format-line:last-child{margin-bottom:0}
+.ob-format-line .ck{color:var(--fn-tx);font-weight:700;flex-shrink:0;font-size:.7rem}
+.ob-format-line code{background:var(--sf3);border:1px solid var(--bd);border-radius:5px;padding:2px 8px;font-size:.76rem;color:var(--txs);font-family:monospace}
+.ob-tip{font-size:.74rem;color:var(--txm);margin-top:10px;padding-top:10px;border-top:1px solid var(--bd);display:flex;gap:7px;align-items:flex-start;line-height:1.5}
+.ob-tip strong{color:var(--ip-tx)}
+
+/* Step dots */
+.ob-dots{display:flex;gap:6px;justify-content:center;margin-bottom:20px}
+.ob-dot{width:8px;height:8px;border-radius:50%;background:var(--bd);transition:all .3s cubic-bezier(.34,1.56,.64,1)}
+.ob-dot.on{width:22px;background:var(--ac)}
+
+/* Nav buttons */
+.ob-btns{display:flex;gap:10px}
+.ob-skip{flex:1;padding:12px;background:transparent;border:1px solid var(--bd);border-radius:11px;color:var(--txm);font-family:'DM Sans',sans-serif;font-size:.88rem;cursor:pointer;transition:all .18s}
+.ob-skip:hover{border-color:var(--bdh);color:var(--txs)}
+.ob-next{flex:2;padding:12px;background:var(--ac);border:none;border-radius:11px;color:#000;font-family:'DM Sans',sans-serif;font-size:.9rem;font-weight:700;cursor:pointer;transition:all .18s;animation:cvPulse 2s infinite}
+.ob-next:hover{background:#e8be5a;transform:translateY(-1px)}
+.ob-next:active{transform:scale(.97)}
+
+/* Paste tab inline format guide */
+.paste-guide{background:var(--sf2);border:1px solid var(--bd);border-radius:11px;padding:12px 14px;margin-bottom:12px}
+.paste-guide-title{font-size:.72rem;font-weight:700;color:var(--ac);text-transform:uppercase;letter-spacing:.7px;margin-bottom:8px}
+.paste-guide-line{display:flex;align-items:center;gap:7px;margin-bottom:5px;font-size:.78rem;color:var(--txs)}
+.paste-guide-line:last-child{margin-bottom:0}
+.paste-guide-line .pgck{color:var(--fn-tx);font-size:.7rem;font-weight:700;flex-shrink:0}
+.paste-guide-line code{background:var(--sf3);border:1px solid var(--bd);border-radius:4px;padding:1px 7px;font-size:.74rem;color:var(--txs);font-family:monospace}
+.paste-guide-tip{font-size:.73rem;color:var(--txm);margin-top:8px;padding-top:8px;border-top:1px solid var(--bd)}
+.paste-guide-tip strong{color:var(--ip-tx)}
+
 ::-webkit-scrollbar{width:4px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:var(--bd);border-radius:2px}
 @media(max-width:480px){
   .wrap{padding:14px 11px}
@@ -274,13 +344,128 @@ select.st:focus{border-color:var(--ac)}
   .hbtns{gap:5px}.hbtn{padding:6px 9px;font-size:.72rem}
   .tabs{gap:5px}.tab{padding:7px 12px;font-size:.76rem}
   .logo{font-size:1.2rem}.sc-title{font-size:.92rem}
-  .mtab{font-size:.65rem;padding:8px 2px}
+  .mtab{font-size:.68rem;padding:8px 4px}
+  .ob-card{padding:24px 18px}
+  .ob-title{font-size:1.3rem}
 }
 </style>
 </head>
 <body>
 
-<div id="installBanner">
+<!-- ══ ONBOARDING GUIDE (first visit only) ══ -->
+<div id="onboarding" class="hidden">
+  <div class="ob-card" id="obCard">
+
+    <!-- Step 1 -->
+    <div id="ob-step-1">
+      <div class="ob-dots">
+        <div class="ob-dot on" id="dot-1"></div>
+        <div class="ob-dot" id="dot-2"></div>
+        <div class="ob-dot" id="dot-3"></div>
+      </div>
+      <div class="ob-icon">🎬</div>
+      <div class="ob-title">Welcome to CineVault</div>
+      <div class="ob-sub">Your personal movie & series tracker — works fully offline, saves everything on your device.</div>
+      <div class="ob-features">
+        <div class="ob-feat">
+          <div class="ob-feat-icon">📺</div>
+          <div class="ob-feat-body">
+            <div class="ob-feat-title">Watchlist</div>
+            <div class="ob-feat-desc">Search & add movies, web series, anime. Track them as To Watch → In Progress → Finished.</div>
+          </div>
+        </div>
+        <div class="ob-feat">
+          <div class="ob-feat-icon">📋</div>
+          <div class="ob-feat-body">
+            <div class="ob-feat-title">Custom Lists</div>
+            <div class="ob-feat-desc">Build ordered watch lists — "MCU Order", "DC Movies", anything. Double-tap to mark complete ✓</div>
+          </div>
+        </div>
+        <div class="ob-feat">
+          <div class="ob-feat-icon">☁️</div>
+          <div class="ob-feat-body">
+            <div class="ob-feat-title">100% Free, No Login</div>
+            <div class="ob-feat-desc">Data stays on your phone. Export a backup JSON to move between devices anytime.</div>
+          </div>
+        </div>
+      </div>
+      <div class="ob-btns">
+        <button class="ob-skip" onclick="finishOnboarding()">Skip</button>
+        <button class="ob-next" onclick="obNext(2)">Next →</button>
+      </div>
+    </div>
+
+    <!-- Step 2 -->
+    <div id="ob-step-2" style="display:none">
+      <div class="ob-dots">
+        <div class="ob-dot" id="dot2-1"></div>
+        <div class="ob-dot on" id="dot2-2"></div>
+        <div class="ob-dot" id="dot2-3"></div>
+      </div>
+      <div class="ob-icon">📋</div>
+      <div class="ob-title">Create Lists</div>
+      <div class="ob-sub">Go to the <strong style="color:var(--ac)">Lists</strong> tab → tap <strong style="color:var(--ac)">＋ New List</strong> → give it a name like "MCU Watch Order".</div>
+      <div class="ob-features">
+        <div class="ob-feat">
+          <div class="ob-feat-icon">🎯</div>
+          <div class="ob-feat-body">
+            <div class="ob-feat-title">Add movies one by one</div>
+            <div class="ob-feat-desc">Tap ＋ Add inside any list → Search tab → type a name → tap the result to add it.</div>
+          </div>
+        </div>
+        <div class="ob-feat">
+          <div class="ob-feat-icon">☰</div>
+          <div class="ob-feat-body">
+            <div class="ob-feat-title">Reorder by holding</div>
+            <div class="ob-feat-desc">Hold the ① number badge on any entry for ~0.4 seconds — then drag it to a new position.</div>
+          </div>
+        </div>
+        <div class="ob-feat">
+          <div class="ob-feat-icon">✅</div>
+          <div class="ob-feat-body">
+            <div class="ob-feat-title">Mark as watched</div>
+            <div class="ob-feat-desc">Double-tap any box in the list to mark it complete — it turns green with a ✓ checkmark.</div>
+          </div>
+        </div>
+      </div>
+      <div class="ob-btns">
+        <button class="ob-skip" onclick="obNext(1)">← Back</button>
+        <button class="ob-next" onclick="obNext(3)">Next →</button>
+      </div>
+    </div>
+
+    <!-- Step 3 -->
+    <div id="ob-step-3" style="display:none">
+      <div class="ob-dots">
+        <div class="ob-dot" id="dot3-1"></div>
+        <div class="ob-dot" id="dot3-2"></div>
+        <div class="ob-dot on" id="dot3-3"></div>
+      </div>
+      <div class="ob-icon">⚡</div>
+      <div class="ob-title">Paste a Full List Instantly</div>
+      <div class="ob-sub">Copy any watch order from Reddit, IMDb, or fan sites — paste it and we'll find every movie on TMDB automatically.</div>
+      <div class="ob-format">
+        <div class="ob-format-title">✓ Accepted formats</div>
+        <div class="ob-format-line"><span class="ck">✓</span><code>1. Iron Man (2008)</code></div>
+        <div class="ob-format-line"><span class="ck">✓</span><code>2) The Incredible Hulk (2008)</code></div>
+        <div class="ob-format-line"><span class="ck">✓</span><code>- Thor (2011)</code></div>
+        <div class="ob-format-line"><span class="ck">✓</span><code>Iron Man (no number needed)</code></div>
+        <div class="ob-tip">
+          <span>💡</span>
+          <span><strong>Always include the year</strong> — it helps us pick the right movie when there are multiple with the same name (e.g. Spider-Man 2002 vs 2017).</span>
+        </div>
+      </div>
+      <div style="font-size:.78rem;color:var(--txm);margin-bottom:20px;text-align:center">
+        Go to any list → <strong style="color:var(--tx)">＋ Add</strong> → <strong style="color:var(--ac)">📋 Paste List</strong> tab
+      </div>
+      <div class="ob-btns">
+        <button class="ob-skip" onclick="obNext(2)">← Back</button>
+        <button class="ob-next" onclick="finishOnboarding()" style="animation:none;background:var(--fn-bd)">🚀 Let's Go!</button>
+      </div>
+    </div>
+
+  </div>
+</div>
   <p>📱 <strong>Install CineVault</strong> as an app</p>
   <button class="ibtn-install" id="installBtn">Install</button>
   <button class="ibtn-dismiss" onclick="dismissInstall()">✕</button>
@@ -392,9 +577,19 @@ select.st:focus{border-color:var(--ac)}
 
     <!-- Tab 2: PASTE LIST -->
     <div class="modal-panel" id="mpanel-paste">
-      <p style="margin-bottom:10px">Paste a numbered list copied from Reddit, IMDb, or anywhere. Include years for best accuracy.</p>
-      <textarea id="pasteListTxt" placeholder="1. Iron Man (2008)&#10;2. The Incredible Hulk (2008)&#10;3. Iron Man 2 (2010)&#10;4. Thor (2011)&#10;..." style="width:100%;min-height:140px;padding:10px;background:var(--sf2);border:1.5px solid var(--bd);border-radius:10px;color:var(--tx);font-family:'DM Sans',sans-serif;font-size:.84rem;outline:none;resize:vertical;transition:border-color .2s" onfocus="this.style.borderColor='var(--ac)'" onblur="this.style.borderColor='var(--bd)'"></textarea>
-      <button onclick="processPasteList()" style="width:100%;margin-top:10px;padding:11px;background:var(--ac);border:none;border-radius:10px;color:#000;font-weight:700;font-size:.88rem;font-family:'DM Sans',sans-serif;cursor:pointer">🔍 Find &amp; Preview</button>
+      <div style="background:var(--sf2);border:1px solid var(--bd);border-radius:10px;padding:12px 14px;margin-bottom:12px">
+        <div style="font-size:.72rem;font-weight:700;color:var(--ac);text-transform:uppercase;letter-spacing:.8px;margin-bottom:8px">📋 Supported Formats</div>
+        <div style="font-size:.76rem;color:var(--txs);line-height:1.9;font-family:'DM Sans',sans-serif">
+          <span style="color:var(--fn-tx)">1.</span> Iron Man (2008)<br>
+          <span style="color:var(--fn-tx)">2)</span> The Incredible Hulk (2008)<br>
+          <span style="color:var(--fn-tx)">-</span> Thor - 2011<br>
+          <span style="color:var(--fn-tx)">•</span> Captain America (2011)<br>
+          <span style="color:var(--txm)">Iron Man (no number needed)</span>
+        </div>
+        <div style="margin-top:8px;padding-top:8px;border-top:1px solid var(--bd);font-size:.72rem;color:var(--txm)">💡 Include the year for best accuracy — especially helpful for movies with the same name.</div>
+      </div>
+      <textarea id="pasteListTxt" placeholder="Paste your list here…&#10;&#10;e.g.&#10;1. Iron Man (2008)&#10;2. The Incredible Hulk (2008)&#10;3. Iron Man 2 (2010)&#10;4. Thor (2011)&#10;5. Captain America: The First Avenger (2011)&#10;..." style="width:100%;min-height:150px;padding:11px 13px;background:var(--sf2);border:1.5px solid var(--bd);border-radius:10px;color:var(--tx);font-family:'DM Sans',sans-serif;font-size:.84rem;outline:none;resize:vertical;transition:border-color .2s;line-height:1.6" onfocus="this.style.borderColor='var(--ac)'" onblur="this.style.borderColor='var(--bd)'"></textarea>
+      <button onclick="processPasteList()" style="width:100%;margin-top:10px;padding:12px;background:var(--ac);border:none;border-radius:10px;color:#000;font-weight:700;font-size:.9rem;font-family:'DM Sans',sans-serif;cursor:pointer;letter-spacing:.2px">🔍 Find &amp; Preview</button>
       <div id="pasteResults" style="margin-top:12px"></div>
     </div>
 
@@ -1291,6 +1486,46 @@ async function doImport(){
     document.getElementById('importTxt').value='';toast(`✅ Imported ${added} item(s)`,'ok');
   }catch{toast('Invalid JSON','err');}
 }
+
+
+// ══ ONBOARDING ════════════════════════════════════════════
+let _obStep = 1;
+
+function initOnboarding() {
+  if (localStorage.getItem('cv_onboarded')) return; // already seen
+  // Small delay so the app loads visibly first
+  setTimeout(() => {
+    document.getElementById('onboarding').classList.remove('hidden');
+  }, 600);
+}
+
+function obNext(step) {
+  const current = document.getElementById(`ob-step-${_obStep}`);
+  // Animate out
+  current.style.animation = 'cvSlideOutLeft .22s ease forwards';
+  setTimeout(() => {
+    current.style.display = 'none';
+    current.style.animation = '';
+    _obStep = step;
+    const next = document.getElementById(`ob-step-${step}`);
+    next.style.display = 'block';
+    next.style.animation = 'cvSlideInRight .32s cubic-bezier(.22,1,.36,1)';
+  }, 200);
+}
+
+function finishOnboarding() {
+  const ob = document.getElementById('onboarding');
+  ob.style.animation = 'cvFadeIn .3s ease reverse forwards';
+  setTimeout(() => { ob.classList.add('hidden'); }, 280);
+  localStorage.setItem('cv_onboarded', '1');
+}
+
+// Run after DB loads
+const _origLoadAll = loadAll;
+loadAll = async function() {
+  await _origLoadAll();
+  initOnboarding();
+};
 
 let toastT;
 function toast(msg,type=''){const t=document.getElementById('toast');t.textContent=msg;t.className='toast '+type;requestAnimationFrame(()=>t.classList.add('show'));clearTimeout(toastT);toastT=setTimeout(()=>t.classList.remove('show'),2800);}
