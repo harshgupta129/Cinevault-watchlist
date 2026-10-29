@@ -266,6 +266,48 @@ select.st:focus{border-color:var(--ac)}
 .paste-status.miss{background:rgba(200,40,40,.15);color:#ff6060;border:1px solid rgba(200,40,40,.3)}
 .paste-import-btn{width:100%;padding:11px;background:var(--ac);border:none;border-radius:10px;color:#000;font-weight:700;font-size:.88rem;font-family:'DM Sans',sans-serif;cursor:pointer}
 .paste-import-btn:active{transform:scale(.97)}
+/* ══ BACKUP NUDGE TOAST ══════════════════════════════════ */
+.nudge-toast{
+  position:fixed;bottom:calc(72px + env(safe-area-inset-bottom));left:50%;
+  transform:translateX(-50%) translateY(100px);
+  opacity:0;transition:all .35s cubic-bezier(.34,1.56,.64,1);
+  z-index:9998;width:calc(100% - 32px);max-width:360px;
+  background:#1a1200;border:1.5px solid var(--ip-bd);
+  border-radius:14px;padding:13px 14px;
+  box-shadow:0 8px 32px rgba(0,0,0,.7);
+}
+.nudge-toast.show{transform:translateX(-50%) translateY(0);opacity:1}
+.nudge-top{display:flex;align-items:center;gap:9px;margin-bottom:10px}
+.nudge-icon{font-size:1.1rem;flex-shrink:0}
+.nudge-text{flex:1;min-width:0}
+.nudge-title{font-size:.82rem;font-weight:700;color:var(--ip-tx);margin-bottom:2px}
+.nudge-sub{font-size:.72rem;color:var(--txm);line-height:1.4}
+.nudge-close{background:none;border:none;color:var(--txm);font-size:1rem;cursor:pointer;padding:2px;flex-shrink:0}
+.nudge-btns{display:flex;gap:8px}
+.nudge-backup{flex:1;padding:8px;background:var(--ip-bd);border:none;border-radius:9px;color:#000;font-weight:700;font-size:.8rem;font-family:'DM Sans',sans-serif;cursor:pointer;transition:all .18s}
+.nudge-backup:hover{background:#e8a020}
+.nudge-later{flex:1;padding:8px;background:transparent;border:1px solid var(--bd);border-radius:9px;color:var(--txm);font-size:.8rem;font-family:'DM Sans',sans-serif;cursor:pointer;transition:all .18s}
+.nudge-later:hover{border-color:var(--bdh);color:var(--txs)}
+
+/* ══ BACKUP REMINDER BANNER ══════════════════════════════ */
+.backup-banner{
+  background:#1a1100;border-bottom:1px solid var(--ip-bd);
+  padding:10px 16px;display:none;align-items:center;
+  gap:10px;flex-wrap:wrap;
+  animation:cvFadeIn .4s ease;
+}
+.backup-banner.show{display:flex}
+.backup-banner-left{display:flex;align-items:flex-start;gap:9px;flex:1;min-width:0}
+.backup-banner-icon{font-size:1.1rem;flex-shrink:0;margin-top:1px}
+.backup-banner-body{min-width:0}
+.backup-banner-title{font-size:.8rem;font-weight:700;color:var(--ip-tx);margin-bottom:2px}
+.backup-banner-msg{font-size:.73rem;color:var(--txm);line-height:1.4}
+.backup-banner-actions{display:flex;gap:7px;flex-shrink:0;align-items:center}
+.bb-export{background:var(--ip-bd);border:none;border-radius:8px;color:#000;font-weight:700;font-size:.76rem;font-family:'DM Sans',sans-serif;padding:6px 13px;cursor:pointer;white-space:nowrap;transition:all .18s}
+.bb-export:hover{background:#e8a020}
+.bb-dismiss{background:none;border:1px solid var(--bd);border-radius:8px;color:var(--txm);font-size:.74rem;font-family:'DM Sans',sans-serif;padding:6px 10px;cursor:pointer;white-space:nowrap;transition:all .18s}
+.bb-dismiss:hover{border-color:var(--bdh);color:var(--txs)}
+
 /* ══ ONBOARDING ══════════════════════════════════════════ */
 @keyframes cvFadeUp{from{opacity:0;transform:translateY(32px)}to{opacity:1;transform:translateY(0)}}
 @keyframes cvFadeIn{from{opacity:0}to{opacity:1}}
@@ -471,6 +513,21 @@ select.st:focus{border-color:var(--ac)}
   <button class="ibtn-dismiss" onclick="dismissInstall()">✕</button>
 </div>
 
+<!-- Backup reminder banner — shown periodically -->
+<div id="backupBanner" class="backup-banner">
+  <div class="backup-banner-left">
+    <span class="backup-banner-icon">⚠️</span>
+    <div class="backup-banner-body">
+      <div class="backup-banner-title">Your data is stored in this browser only</div>
+      <div class="backup-banner-msg" id="backupMsg">Clearing browser data will delete everything permanently. Keep a backup.</div>
+    </div>
+  </div>
+  <div class="backup-banner-actions">
+    <button class="bb-export" onclick="exportAndDismiss()">📦 Backup Now</button>
+    <button class="bb-dismiss" onclick="dismissBackupBanner()">Later</button>
+  </div>
+</div>
+
 <header>
   <div class="logo">CineVault <small>Watchlist</small></div>
   <div class="hbtns">
@@ -540,12 +597,45 @@ select.st:focus{border-color:var(--ac)}
 
 <div class="toast" id="toast"></div>
 
+<!-- Backup nudge toast — shown after adding several items in one session -->
+<div class="nudge-toast" id="nudgeToast">
+  <div class="nudge-top">
+    <span class="nudge-icon">💾</span>
+    <div class="nudge-text">
+      <div class="nudge-title" id="nudgeTitle">You've added a lot recently!</div>
+      <div class="nudge-sub">Data only lives in this browser — one clear and it's gone. Backup takes 2 seconds.</div>
+    </div>
+    <button class="nudge-close" onclick="dismissNudge()">✕</button>
+  </div>
+  <div class="nudge-btns">
+    <button class="nudge-backup" onclick="exportFromNudge()">📦 Backup Now</button>
+    <button class="nudge-later" onclick="dismissNudge()">Not now</button>
+  </div>
+</div>
+
 <div class="ov" id="importOv">
   <div class="modal">
-    <h3>Import Watchlist</h3>
-    <p>Paste your exported JSON.</p>
-    <textarea id="importTxt" placeholder="Paste JSON here…"></textarea>
-    <div class="mbtns"><button class="mcancel" onclick="closeImport()">Cancel</button><button class="mok" onclick="doImport()">Import</button></div>
+    <h3>⬇ Import Backup</h3>
+    <p style="margin-bottom:14px">Restore from a <code style="background:var(--sf2);border:1px solid var(--bd);border-radius:4px;padding:1px 6px;font-size:.78rem">cinevault-backup.json</code> file you exported earlier.</p>
+
+    <!-- File picker — easiest on mobile -->
+    <input type="file" id="importFile" accept=".json,application/json" style="display:none" onchange="loadImportFile(this)">
+    <button onclick="document.getElementById('importFile').click()" style="width:100%;padding:12px;background:var(--sf2);border:1.5px solid var(--bdh);border-radius:11px;color:var(--tx);font-family:'DM Sans',sans-serif;font-size:.9rem;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;transition:all .18s;margin-bottom:14px" onmouseover="this.style.borderColor='var(--ac)'" onmouseout="this.style.borderColor='var(--bdh)'">
+      📁 <span>Choose backup file</span>
+    </button>
+
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px">
+      <div style="flex:1;height:1px;background:var(--bd)"></div>
+      <span style="font-size:.72rem;color:var(--txm);white-space:nowrap">or paste JSON manually</span>
+      <div style="flex:1;height:1px;background:var(--bd)"></div>
+    </div>
+
+    <textarea id="importTxt" placeholder="Paste the contents of cinevault-backup.json here…" style="margin-bottom:4px"></textarea>
+    <div style="font-size:.71rem;color:var(--txm);margin-bottom:4px">Duplicates are skipped — safe to import multiple times.</div>
+    <div class="mbtns">
+      <button class="mcancel" onclick="closeImport()">Cancel</button>
+      <button class="mok" onclick="doImport()">Import</button>
+    </div>
   </div>
 </div>
 
@@ -1468,25 +1558,217 @@ async function addToCurrentList(data){
 
 // ── EXPORT / IMPORT ───────────────────────────────────────
 function exportData(){
-  const blob=new Blob([JSON.stringify({watchlist:list,lists:cvLists,list_items:cvListItems},null,2)],{type:'application/json'});
-  const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='cinevault-backup.json';a.click();toast('📦 Backup saved!','ok');
-}
-function openImport(){document.getElementById('importOv').classList.add('open');}
-function closeImport(){document.getElementById('importOv').classList.remove('open');}
-async function doImport(){
-  try{
-    const raw=JSON.parse(document.getElementById('importTxt').value.trim());
-    const data=Array.isArray(raw)?{watchlist:raw,lists:[],list_items:[]}:raw;
-    let added=0;
-    for(const item of(data.watchlist||[])){if(!list.find(w=>w.id===item.id&&w.type===item.type)){await dbPut(STORE,item);list.unshift(item);added++;}}
-    for(const lst of(data.lists||[])){if(!cvLists.find(l=>l.id===lst.id)){await dbPut(LSTORE,lst);cvLists.unshift(lst);}}
-    for(const li of(data.list_items||[])){if(!cvListItems.find(i=>i.id===li.id)){await dbPut(LISTORE,li);cvListItems.push(li);}}
-    list.sort((a,b)=>b.added_at-a.added_at);cvLists.sort((a,b)=>b.created_at-a.created_at);
-    updateStats();render();renderLists();closeImport();
-    document.getElementById('importTxt').value='';toast(`✅ Imported ${added} item(s)`,'ok');
-  }catch{toast('Invalid JSON','err');}
+  // Always pull fresh from in-memory state — guaranteed to match IndexedDB
+  const payload = {
+    watchlist: list,
+    lists: cvLists,
+    list_items: cvListItems,
+    exported_at: new Date().toISOString(),
+    version: 2
+  };
+  const blob = new Blob([JSON.stringify(payload, null, 2)], {type:'application/json'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `cinevault-backup-${new Date().toISOString().slice(0,10)}.json`;
+  a.click();
+  // Revoke after a tick to avoid memory leak
+  setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+  localStorage.setItem('cv_last_export', Date.now().toString());
+  toast(`📦 Exported ${list.length} items & ${cvLists.length} lists`, 'ok');
 }
 
+// File picker — reads JSON file and triggers import automatically
+function loadImportFile(input) {
+  const file = input.files[0];
+  if (!file) return;
+  if (!file.name.endsWith('.json') && file.type !== 'application/json') {
+    toast('Please choose a .json file', 'err'); return;
+  }
+  const reader = new FileReader();
+  reader.onload = e => {
+    document.getElementById('importTxt').value = e.target.result;
+    doImport(); // auto-import as soon as file is read
+  };
+  reader.onerror = () => toast('Could not read the file', 'err');
+  reader.readAsText(file);
+  // Reset input so same file can be chosen again if needed
+  input.value = '';
+}
+
+function openImport(){ document.getElementById('importOv').classList.add('open'); }
+function closeImport(){ document.getElementById('importOv').classList.remove('open'); }
+
+async function doImport(){
+  const raw = document.getElementById('importTxt').value.trim();
+  if (!raw) { toast('Nothing to import — choose a file or paste JSON', 'err'); return; }
+
+  let parsed;
+  try { parsed = JSON.parse(raw); }
+  catch { toast('❌ Invalid JSON — make sure the file is unmodified', 'err'); return; }
+
+  // Support both old format (plain array) and new format (object with keys)
+  const data = Array.isArray(parsed)
+    ? { watchlist: parsed, lists: [], list_items: [] }
+    : parsed;
+
+  if (!data.watchlist && !data.lists && !data.list_items) {
+    toast('❌ Unrecognised format — export from CineVault first', 'err'); return;
+  }
+
+  let wAdded = 0, lAdded = 0, liAdded = 0;
+
+  try {
+    // Import watchlist items
+    for (const item of (data.watchlist || [])) {
+      if (!item.id || !item.type || !item.title) continue; // skip malformed
+      if (!list.find(w => w.id === item.id && w.type === item.type)) {
+        await dbPut(STORE, item);
+        list.unshift(item);
+        wAdded++;
+      }
+    }
+
+    // Import custom lists
+    for (const lst of (data.lists || [])) {
+      if (!lst.id || !lst.name) continue;
+      if (!cvLists.find(l => l.id === lst.id)) {
+        await dbPut(LSTORE, lst);
+        cvLists.unshift(lst);
+        lAdded++;
+      }
+    }
+
+    // Import list items
+    for (const li of (data.list_items || [])) {
+      if (!li.id || !li.list_id) continue;
+      if (!cvListItems.find(i => i.id === li.id)) {
+        await dbPut(LISTORE, li);
+        cvListItems.push(li);
+        liAdded++;
+      }
+    }
+
+    // Sort and refresh all views
+    list.sort((a,b) => b.added_at - a.added_at);
+    cvLists.sort((a,b) => b.created_at - a.created_at);
+    updateStats();
+    render();
+    renderLists();
+    if (curListId) renderDetail(); // refresh if user is inside a list
+
+    closeImport();
+    document.getElementById('importTxt').value = '';
+
+    // Build a clear summary message
+    const total = wAdded + lAdded + liAdded;
+    if (total === 0) {
+      toast('✅ Already up to date — no new items', '');
+    } else {
+      const parts = [];
+      if (wAdded) parts.push(`${wAdded} watchlist item${wAdded!==1?'s':''}`);
+      if (lAdded) parts.push(`${lAdded} list${lAdded!==1?'s':''}`);
+      if (liAdded) parts.push(`${liAdded} list entr${liAdded!==1?'ies':'y'}`);
+      toast(`✅ Imported: ${parts.join(', ')}`, 'ok');
+    }
+
+  } catch(err) {
+    console.error('Import error:', err);
+    toast('❌ Import failed — see console for details', 'err');
+  }
+}
+
+
+// ══ SESSION ADD COUNTER — nudge after bulk adds ═══════════
+let _sessionAdds = 0;
+let _nudgeTimer   = null;
+const NUDGE_THRESHOLD = 5; // show nudge after every 5 adds in a session
+
+function onItemAdded(count = 1) {
+  _sessionAdds += count;
+  // Only nudge at multiples of the threshold (5, 10, 15…)
+  if (_sessionAdds % NUDGE_THRESHOLD === 0) {
+    // Small delay so the "added" toast finishes first
+    setTimeout(() => showNudgeToast(_sessionAdds), 1200);
+  }
+}
+
+function showNudgeToast(total) {
+  // Don't nudge if they exported in the last 30 minutes
+  const lastExport = parseInt(localStorage.getItem('cv_last_export') || '0');
+  if (Date.now() - lastExport < 30 * 60 * 1000) return;
+
+  const title = document.getElementById('nudgeTitle');
+  if (total === NUDGE_THRESHOLD) {
+    title.textContent = `You've added ${total} items this session!`;
+  } else {
+    title.textContent = `${total} items added — still no backup!`;
+  }
+
+  const nudge = document.getElementById('nudgeToast');
+  nudge.classList.add('show');
+
+  // Auto-dismiss after 10 seconds
+  clearTimeout(_nudgeTimer);
+  _nudgeTimer = setTimeout(dismissNudge, 10000);
+}
+
+function dismissNudge() {
+  clearTimeout(_nudgeTimer);
+  document.getElementById('nudgeToast').classList.remove('show');
+}
+
+function exportFromNudge() {
+  dismissNudge();
+  exportData();
+}
+
+// ══ BACKUP REMINDER ═══════════════════════════════════════
+const BACKUP_INTERVAL_DAYS = 7;  // remind every 7 days
+const MS_PER_DAY = 86400000;
+
+function checkBackupReminder() {
+  const lastExport    = parseInt(localStorage.getItem('cv_last_export')    || '0');
+  const lastDismissed = parseInt(localStorage.getItem('cv_reminder_snoozed') || '0');
+  const now = Date.now();
+
+  // Don't nag if they dismissed recently
+  if (lastDismissed && now - lastDismissed < BACKUP_INTERVAL_DAYS * MS_PER_DAY) return;
+
+  const daysSinceExport = lastExport
+    ? Math.floor((now - lastExport) / MS_PER_DAY)
+    : null;
+
+  // Show if never backed up OR it's been 7+ days since last backup
+  if (!lastExport || daysSinceExport >= BACKUP_INTERVAL_DAYS) {
+    showBackupBanner(daysSinceExport);
+  }
+}
+
+function showBackupBanner(daysSince) {
+  const banner = document.getElementById('backupBanner');
+  const msg    = document.getElementById('backupMsg');
+
+  if (daysSince === null) {
+    msg.innerHTML = `You've <strong>never created a backup</strong>. If you clear browser data or switch devices, you'll lose all your movies and lists.`;
+  } else if (daysSince === 0) {
+    msg.innerHTML = `Backed up today — great! Tap <em>Later</em> to dismiss this for ${BACKUP_INTERVAL_DAYS} days.`;
+  } else {
+    msg.innerHTML = `Last backup was <strong>${daysSince} day${daysSince!==1?'s':''} ago</strong>. Clearing browser data will delete everything permanently.`;
+  }
+
+  // Slide in with a short delay so the page renders first
+  setTimeout(() => banner.classList.add('show'), 800);
+}
+
+function dismissBackupBanner() {
+  document.getElementById('backupBanner').classList.remove('show');
+  localStorage.setItem('cv_reminder_snoozed', Date.now().toString());
+}
+
+function exportAndDismiss() {
+  exportData();           // triggers export + records cv_last_export
+  dismissBackupBanner();  // snooze the banner
+}
 
 // ══ ONBOARDING ════════════════════════════════════════════
 let _obStep = 1;
@@ -1525,6 +1807,10 @@ const _origLoadAll = loadAll;
 loadAll = async function() {
   await _origLoadAll();
   initOnboarding();
+  // Only run backup check if user has already seen onboarding (not a first visit)
+  if (localStorage.getItem('cv_onboarded')) {
+    checkBackupReminder();
+  }
 };
 
 let toastT;
