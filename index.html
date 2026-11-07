@@ -839,6 +839,7 @@ async function addItem(data){
   const item={...data,status:'to-watch',added_at:Date.now()};delete item._listMode;
   await dbPut(STORE,item);list.unshift(item);updateStats();render();closeDd();sInput.value='';
   toast(`✅ Added "${data.title}"`,'ok');
+  onItemAdded(1);
 }
 function addManual(){
   const title=prompt('Enter title:');if(!title?.trim())return;
@@ -1294,6 +1295,7 @@ async function importPasteList() {
   document.getElementById('pasteListTxt').value = '';
   _pasteMatches = [];
   toast(`✅ Imported ${added} movies in order`, 'ok');
+  onBulkAdded(added);
 }
 
 // ══════════════════════════════════════════════════════════
@@ -1554,6 +1556,7 @@ async function addToCurrentList(data){
   await dbPut(LISTORE,li);cvListItems.push(li);
   renderDetail();renderLists();renderWatchlistPicker();
   toast(`✅ Added "${data.title}"`,'ok');
+  onItemAdded(1);
 }
 
 // ── EXPORT / IMPORT ───────────────────────────────────────
@@ -1692,13 +1695,27 @@ function onItemAdded(count = 1) {
   }
 }
 
-function showNudgeToast(total) {
+// Called after importing many items at once (e.g. a pasted list)
+function onBulkAdded(count) {
+  if (!count) return;
+  const before = _sessionAdds;
+  _sessionAdds += count;
+  // Nudge immediately if this one import is big, or if it crossed a multiple of the threshold
+  const crossed = Math.floor(_sessionAdds / NUDGE_THRESHOLD) > Math.floor(before / NUDGE_THRESHOLD);
+  if (count >= NUDGE_THRESHOLD || crossed) {
+    setTimeout(() => showNudgeToast(_sessionAdds, count), 1200);
+  }
+}
+
+function showNudgeToast(total, justAdded) {
   // Don't nudge if they exported in the last 30 minutes
   const lastExport = parseInt(localStorage.getItem('cv_last_export') || '0');
   if (Date.now() - lastExport < 30 * 60 * 1000) return;
 
   const title = document.getElementById('nudgeTitle');
-  if (total === NUDGE_THRESHOLD) {
+  if (justAdded && justAdded >= NUDGE_THRESHOLD) {
+    title.textContent = `You just added ${justAdded} items at once!`;
+  } else if (total === NUDGE_THRESHOLD) {
     title.textContent = `You've added ${total} items this session!`;
   } else {
     title.textContent = `${total} items added — still no backup!`;
